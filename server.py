@@ -9,37 +9,40 @@ app = Flask(__name__)
 CORS(app)
 DB_PATH = "Bunseki.db"  # データベースを統一
 
-
 # SQLite データベースを作成（もし存在しない場合）
 def init_db():
-    # 初回起動時のみ呼び出し
     if not os.path.exists(DB_PATH):
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row
-        cur = conn.cursor()
-        
-        # `bunseki` テーブル作成
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS bunseki (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                yougo TEXT NOT NULL,
-                seigo INTEGER NOT NULL
-            )
-        """)
-        
-        # `tokai` テーブル作成（必要なら）
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS tokai (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                yougo TEXT NOT NULL,
-                mondai TEXT NOT NULL
-            )
-        """)
-        
-        conn.commit()
-        cur.close()
-        conn.close()
-        print("✅ `Bunseki.db` を作成しました！")
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+
+            # `bunseki` テーブル作成
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS bunseki (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    yougo TEXT NOT NULL,
+                    seigo INTEGER NOT NULL
+                )
+            """)
+
+            # `tokai` テーブル作成（必要なら）
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS tokai (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    yougo TEXT NOT NULL,
+                    mondai TEXT NOT NULL
+                )
+            """)
+
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            print("✅ `Bunseki.db` を作成しました！")
+        except Exception as e:
+            print(f"Error initializing database: {e}")
+            raise
 
 # SQLite データベースに接続
 def connect_db():
@@ -54,7 +57,7 @@ def add_yougo():
 
         conn = connect_db()
         cur = conn.cursor()
-        
+
         # データを挿入
         cur.execute('INSERT INTO bunseki (yougo, seigo) VALUES (?, ?)', (yougo, seigo))
         conn.commit()
@@ -71,10 +74,8 @@ def index():
     try:
         query = request.args.get('query', '')
         response = ai.main(query)
-        # JSONレスポンスとUTF-8エンコーディングヘッダーを設定
         return jsonify({"response": response}), 200, {"Content-Type": "application/json; charset=utf-8"}
     except Exception as e:
-        # エラーレスポンスにもUTF-8エンコーディングを設定
         return jsonify({"error": str(e)}), 500, {"Content-Type": "application/json; charset=utf-8"}
 
 @app.route("/analyze", methods=["GET"])
@@ -159,5 +160,5 @@ def analyze():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    init_db()
+    init_db()  # 初回のみ呼び出し
     app.run(host="0.0.0.0", port=10000)
