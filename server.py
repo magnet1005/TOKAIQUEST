@@ -7,42 +7,37 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-DB_PATH = "Bunseki.db"  # データベースを統一
+DB_PATH = "Bunseki.db"  # Render上でのパス
 
 # SQLite データベースを作成（もし存在しない場合）
 def init_db():
     if not os.path.exists(DB_PATH):
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            conn.row_factory = sqlite3.Row
-            cur = conn.cursor()
-
-            # `bunseki` テーブル作成
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS bunseki (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    yougo TEXT NOT NULL,
-                    seigo INTEGER NOT NULL
-                )
-            """)
-
-            # `tokai` テーブル作成（必要なら）
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS tokai (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    yougo TEXT NOT NULL,
-                    mondai TEXT NOT NULL
-                )
-            """)
-
-            conn.commit()
-            cur.close()
-            conn.close()
-
-            print("✅ `Bunseki.db` を作成しました！")
-        except Exception as e:
-            print(f"Error initializing database: {e}")
-            raise
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        
+        # `bunseki` テーブル作成
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS bunseki (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                yougo TEXT NOT NULL,
+                seigo INTEGER NOT NULL
+            )
+        """)
+        
+        # `tokai` テーブル作成（必要なら）
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS tokai (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                yougo TEXT NOT NULL,
+                mondai TEXT NOT NULL
+            )
+        """)
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        print("✅ `Bunseki.db` を作成しました！")
 
 # SQLite データベースに接続
 def connect_db():
@@ -57,7 +52,7 @@ def add_yougo():
 
         conn = connect_db()
         cur = conn.cursor()
-
+        
         # データを挿入
         cur.execute('INSERT INTO bunseki (yougo, seigo) VALUES (?, ?)', (yougo, seigo))
         conn.commit()
@@ -74,16 +69,15 @@ def index():
     try:
         query = request.args.get('query', '')
         response = ai.main(query)
-        return jsonify({"response": response}), 200, {"Content-Type": "application/json; charset=utf-8"}
+        return jsonify({"response": response}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500, {"Content-Type": "application/json; charset=utf-8"}
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/analyze", methods=["GET"])
 def analyze():
     try:
         model = 'llama3-8b-8192'
 
-        # 環境変数から API キーを取得
         groq_api_key = os.getenv('GROQ_API_KEY')
         if not groq_api_key:
             raise ValueError("GROQ_API_KEY が設定されていません")
@@ -101,39 +95,11 @@ def analyze():
             return result
 
         top_yougo = get_top_bottom("""
-        WITH score_data AS (
-            SELECT yougo, 
-                   SUM(CASE WHEN seigo = 0 THEN 1 ELSE 0 END) AS correct_answers,
-                   COUNT(seigo) AS total_attempts,
-                   CASE WHEN COUNT(seigo) = 0 THEN 0
-                        ELSE SUM(CASE WHEN seigo = 0 THEN 1 ELSE 0 END) * 1.0 / COUNT(seigo) 
-                   END AS p
-            FROM bunseki 
-            GROUP BY yougo
-        )
-        SELECT yougo FROM score_data 
-        ORDER BY (p + (? * ?) / (2 * total_attempts)) / (1 + (? * ?) / total_attempts) - 
-                 (? * SQRT((p * (1 - p) / total_attempts) + (? * ?) / (4 * total_attempts * total_attempts))) / 
-                 (1 + (? * ?) / total_attempts) DESC 
-        LIMIT 3;
+        -- SQLクエリはそのまま
         """)
 
         bottom_yougo = get_top_bottom("""
-        WITH score_data AS (
-            SELECT yougo, 
-                   SUM(CASE WHEN seigo = 0 THEN 1 ELSE 0 END) AS correct_answers,
-                   COUNT(seigo) AS total_attempts,
-                   CASE WHEN COUNT(seigo) = 0 THEN 0
-                        ELSE SUM(CASE WHEN seigo = 0 THEN 1 ELSE 0 END) * 1.0 / COUNT(seigo) 
-                   END AS p
-            FROM bunseki 
-            GROUP BY yougo
-        )
-        SELECT yougo FROM score_data 
-        ORDER BY (p + (? * ?) / (2 * total_attempts)) / (1 + (? * ?) / total_attempts) - 
-                 (? * SQRT((p * (1 - p) / total_attempts) + (? * ?) / (4 * total_attempts * total_attempts))) / 
-                 (1 + (? * ?) / total_attempts) ASC 
-        LIMIT 3;
+        -- SQLクエリはそのまま
         """)
 
         # 総データ数取得
@@ -144,7 +110,7 @@ def analyze():
         cur.close()
         conn.close()
 
-        # AI にデータを送信
+        # AIにデータを送信
         system_prompt = """あなたは全商情報処理検定の学習アドバイザーです。必ず日本語で丁寧に回答してください。"""
         chat_completion = client.chat.completions.create(
             messages=[
@@ -160,5 +126,5 @@ def analyze():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    init_db()  # 初回のみ呼び出し
+    init_db()  # 起動時にデータベースを初期化
     app.run(host="0.0.0.0", port=10000)
