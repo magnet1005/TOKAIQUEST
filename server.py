@@ -104,20 +104,20 @@ return result
 
 top_yougo = get_top_bottom("""
        WITH score_data AS (
-           SELECT yougo, 
-                  SUM(CASE WHEN seigo = 0 THEN 1 ELSE 0 END) AS correct_answers,
-                  COUNT(seigo) AS total_attempts,
-                  CASE WHEN COUNT(seigo) = 0 THEN 0
-                       ELSE SUM(CASE WHEN seigo = 0 THEN 1 ELSE 0 END) * 1.0 / COUNT(seigo) 
-                  END AS p
-           FROM bunseki 
-           GROUP BY yougo
-       )
-       SELECT yougo FROM score_data 
-       ORDER BY (p + (? * ?) / (2 * total_attempts)) / (1 + (? * ?) / total_attempts) - 
-                (? * SQRT((p * (1 - p) / total_attempts) + (? * ?) / (4 * total_attempts * total_attempts))) / 
-                (1 + (? * ?) / total_attempts) DESC 
-       LIMIT 3;
+    SELECT yougo, 
+           SUM(CASE WHEN seigo = 0 THEN 1 ELSE 0 END) AS correct_answers,
+           COUNT(seigo) AS total_attempts,
+           CASE WHEN COUNT(seigo) = 0 THEN 0
+                ELSE SUM(CASE WHEN seigo = 0 THEN 1 ELSE 0 END) * 1.0 / COUNT(seigo) 
+           END AS p
+    FROM bunseki 
+    GROUP BY yougo
+)
+SELECT yougo FROM score_data 
+ORDER BY (p + (? * ?) / (2 * total_attempts)) / (1 + (? * ?) / total_attempts) - 
+         (? * SQRT((p * (1 - p) / total_attempts) + (? * ?) / (4 * total_attempts * total_attempts))) / 
+         (1 + (? * ?) / total_attempts) DESC 
+LIMIT 3;
        """)
 
 bottom_yougo = get_top_bottom("""
