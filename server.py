@@ -93,14 +93,22 @@ raise ValueError("GROQ_API_KEY が設定されていません")
 client = Groq(api_key=groq_api_key)
 
 def get_top_bottom(query):
-conn = connect_db()
-cur = conn.cursor()
-z = 1.96  # Wilson スコア用のZ値
-cur.execute(query, (z, z, z, z, z, z, z, z, z))
-result = [row[0] for row in cur.fetchall()]
-cur.close()
-conn.close()
-return result
+    conn = connect_db()
+    cur = conn.cursor()
+    
+    # `z` という値が9個必要
+    z = 1.96  # Wilson スコア用のZ値
+    
+    # パラメータとして9個渡す
+    params = (z, z, z, z, z, z, z, z, z)
+    
+    # クエリ実行
+    cur.execute(query, params)
+    result = [row[0] for row in cur.fetchall()]
+    cur.close()
+    conn.close()
+    return result
+
 
 top_yougo = get_top_bottom("""
        WITH score_data AS (
