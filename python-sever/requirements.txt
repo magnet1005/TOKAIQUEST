@@ -1,7 +1,0 @@
-flask
-sqlite3
-groq
-flask_cors
-numpy
-pandas
-re
