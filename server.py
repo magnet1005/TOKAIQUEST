@@ -7,13 +7,13 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-
+DB_PATH = "Bunseki.db"  # データベースを統一
 
 
 # SQLite データベースを作成（もし存在しない場合）
 def init_db():
-    DB_PATH = "Bunseki.db"  # データベースを統一
-        conn = sqlite3.connect(Bunseki.db)
+    
+        conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
         
