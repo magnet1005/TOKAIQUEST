@@ -49,7 +49,6 @@ return sqlite3.connect(DB_PATH)
 @app.route("/add", methods=["POST"])
 def add_yougo():
 try:
-        init_db()
 data = request.get_json()
 yougo = data.get("yougo")
 seigo = int(data.get("seigo"))
@@ -82,7 +81,6 @@ return jsonify({"error": str(e)}), 500, {"Content-Type": "application/json; char
 @app.route("/analyze", methods=["GET"])
 def analyze():
 try:
-        init_db()
 model = 'llama3-8b-8192'
 
 # 環境変数から API キーを取得
