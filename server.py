@@ -72,7 +72,7 @@ def index():
         response = ai.main(query)
         return jsonify({"response": response})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500,{"Content-Type": "application/json; charset=utf-8"}
 
 @app.route("/analyze", methods=["GET"])
 def analyze():
