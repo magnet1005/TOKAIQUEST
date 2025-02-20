@@ -70,9 +70,11 @@ def index():
     try:
         query = request.args.get('query', '')
         response = ai.main(query)
-        return jsonify({"response": response})
+        # JSONレスポンスとUTF-8エンコーディングヘッダーを設定
+        return jsonify({"response": response}), 200, {"Content-Type": "application/json; charset=utf-8"}
     except Exception as e:
-        return jsonify({"error": str(e)}), 500,{"Content-Type": "application/json; charset=utf-8"}
+        # エラーレスポンスにもUTF-8エンコーディングを設定
+        return jsonify({"error": str(e)}), 500, {"Content-Type": "application/json; charset=utf-8"}
 
 @app.route("/analyze", methods=["GET"])
 def analyze():
