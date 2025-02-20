@@ -12,7 +12,8 @@ DB_PATH = "Bunseki.db"  # データベースを統一
 
 # SQLite データベースを作成（もし存在しない場合）
 def init_db():
-    
+    # 初回起動時のみ呼び出し
+    if not os.path.exists(DB_PATH):
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
@@ -47,7 +48,6 @@ def connect_db():
 @app.route("/add", methods=["POST"])
 def add_yougo():
     try:
-        init_db()
         data = request.get_json()
         yougo = data.get("yougo")
         seigo = int(data.get("seigo"))
@@ -80,7 +80,6 @@ def index():
 @app.route("/analyze", methods=["GET"])
 def analyze():
     try:
-        init_db()
         model = 'llama3-8b-8192'
 
         # 環境変数から API キーを取得
@@ -160,4 +159,5 @@ def analyze():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
+    init_db()
     app.run(host="0.0.0.0", port=10000)
