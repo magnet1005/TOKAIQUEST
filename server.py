@@ -49,48 +49,48 @@ def connect_db():
 @app.route("/add", methods=["POST"])
 def add_yougo():
           try:
-          init_db()
-          data = request.get_json()
-          yougo = data.get("yougo")
-          seigo = int(data.get("seigo"))
-          
-          conn = connect_db()
-          cur = conn.cursor()
-          
-          # データを挿入
-          cur.execute('INSERT INTO bunseki (yougo, seigo) VALUES (?, ?)', (yougo, seigo))
-          conn.commit()
-          
-          cur.close()
-          conn.close()
-          
-          return jsonify({"message": "データを追加しました！"}), 200
-          except Exception as e:
-          return jsonify({"error": str(e)}), 500
+                    init_db()
+                    data = request.get_json()
+                    yougo = data.get("yougo")
+                    seigo = int(data.get("seigo"))
+                    
+                    conn = connect_db()
+                    cur = conn.cursor()
+                    
+                    # データを挿入
+                    cur.execute('INSERT INTO bunseki (yougo, seigo) VALUES (?, ?)', (yougo, seigo))
+                    conn.commit()
+                    
+                    cur.close()
+                    conn.close()
+                    
+                    return jsonify({"message": "データを追加しました！"}), 200
+                    except Exception as e:
+                    return jsonify({"error": str(e)}), 500
 
 @app.route('/', methods=['GET'])
 def index():
           try:
-          query = request.args.get('query', '')
-          response = ai.main(query)
-          # JSONレスポンスとUTF-8エンコーディングヘッダーを設定
-          return jsonify({"response": response}), 200, {"Content-Type": "application/json; charset=utf-8"}
-          except Exception as e:
-          # エラーレスポンスにもUTF-8エンコーディングを設定
-          return jsonify({"error": str(e)}), 500, {"Content-Type": "application/json; charset=utf-8"}
+                    query = request.args.get('query', '')
+                    response = ai.main(query)
+                    # JSONレスポンスとUTF-8エンコーディングヘッダーを設定
+                    return jsonify({"response": response}), 200, {"Content-Type": "application/json; charset=utf-8"}
+                    except Exception as e:
+                    # エラーレスポンスにもUTF-8エンコーディングを設定
+                    return jsonify({"error": str(e)}), 500, {"Content-Type": "application/json; charset=utf-8"}
 
 @app.route("/analyze", methods=["GET"])
 def analyze():
           try:
-          init_db()
-          model = 'llama3-8b-8192'
-          
-          # 環境変数から API キーを取得
-          groq_api_key = os.getenv('GROQ_API_KEY')
-          if not groq_api_key:
-          raise ValueError("GROQ_API_KEY が設定されていません")
-          
-          client = Groq(api_key=groq_api_key)
+                    init_db()
+                    model = 'llama3-8b-8192'
+                    
+                    # 環境変数から API キーを取得
+                    groq_api_key = os.getenv('GROQ_API_KEY')
+                    if not groq_api_key:
+                    raise ValueError("GROQ_API_KEY が設定されていません")
+                    
+                    client = Groq(api_key=groq_api_key)
 
 def get_top_bottom(query):
           conn = connect_db()
