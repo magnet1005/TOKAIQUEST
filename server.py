@@ -14,6 +14,7 @@ CORS(app)
 def init_db():
     DB_PATH = "Bunseki.db"  # データベースを統一
         conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
         cur = conn.cursor()
         
         # `bunseki` テーブル作成
