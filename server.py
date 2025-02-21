@@ -137,11 +137,29 @@ def analyze():
         top_words = ", ".join(top) if top_words else "なし"
         bottom_words = ", ".join(bottom) if bottom_words else "なし"
 
-        prompt = f"""
-        正答率上位: {top_words}
-        正答率下位: {bottom_words}
-        学習アドバイスをお願いします。
-        """
+        prompt = f"""以下の結果をもとに、個々に寄り添ったアドバイスを【テンプレート】に沿って日本語にて行ってください。
+
+                            - 正答率上位のものは、「できている点」を具体的に褒め、さらに伸ばせる勉強法を提案してください。また、結果からどの分野が得意であるかも教えてください。
+                            - 正答率下位のものは、「努力している点」に触れたうえで、どのように改善すればよいかを前向きに提案してください。  また、結果からどの分野が苦手であるかも教えてください。
+                            - 学習者の向上心を高めるような励ましの言葉を入れてください。
+                            - 装飾をつけずに簡潔に出力してください。
+
+                            正答率上位3位：{""" + top_yougo + """}
+                            正答率下位3位：{""" + bottom_yougo + """}
+                            回答用語数：""" + len_yougo + """
+
+                            【テンプレート】
+                            ---正答率上位3位---
+                            [yougo, yougo, yougo]
+
+                            褒めるような文章
+
+                            ---正答率下位3位---
+                            [yougo, yougo, yougo]
+
+                            正答率を改善するための勉強法
+
+                            """
 
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
