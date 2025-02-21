@@ -168,7 +168,7 @@ def len_yougo():
   return len_yougo
 
 @app.route("/analyze", methods=["GET"])
-def output(client, model, top_yougo, bottom_yougo, len_yougo):
+def output(client, model, top_words, bottom_words, len_yougo):
 
   # システムプロンプトの設定
   system_prompt = '''
@@ -191,8 +191,8 @@ def output(client, model, top_yougo, bottom_yougo, len_yougo):
                             - 学習者の向上心を高めるような励ましの言葉を入れてください。
                             - 装飾をつけずに簡潔に出力してください。
 
-                            正答率上位3位：{""" + top_yougo + """}
-                            正答率下位3位：{""" + bottom_yougo + """}
+                            正答率上位3位：{""" + top_words + """}
+                            正答率下位3位：{""" + bottom_words + """}
                             回答用語数：""" + len_yougo + """
 
                             【テンプレート】
@@ -232,8 +232,10 @@ def main():
   client = Groq(
       api_key=groq_api_key
   )
+    top_words = ", ".join(top())
+    bottom_words = ", ".join(bottom())
 
-  response = output(client, model, ", ".join(top), ", ".join(bottom),len_yougo)
+  response = output(client, model, top_words, bottom_words, len_yougo)
         
   return jsonify({"response": chat_completion.choices[0].message.content})
 
