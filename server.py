@@ -87,7 +87,7 @@ def top():
     top_words = [row[0] for row in cur.fetchall()]
     cur.close()
     conn.close()
-return top_words
+    return top_words
 
 # 正答率下位3つ
 def bottom():
@@ -122,7 +122,7 @@ def bottom():
     bottom_words = [row[0] for row in cur.fetchall()]
     cur.close()
     conn.close()
-return bottom_words
+    return bottom_words
     
 def len_yougo():
   filepath = "Bunseki.db"
@@ -139,7 +139,7 @@ def len_yougo():
   cur.close()
   conn.close()
 
-return len_yougo
+    return len_yougo
 
 @app.route("/analyze", methods=["GET"])
 def analyze():
