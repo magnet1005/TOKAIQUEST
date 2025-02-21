@@ -84,10 +84,10 @@ def top():
     );
     """, (z, z, z, z, z, z, z, z, z))
     
-    top_yougo = [row[0] for row in cur.fetchall()]
+    top_words = [row[0] for row in cur.fetchall()]
     cur.close()
     conn.close()
-    return top_yougo
+return top_words
 
 # 正答率下位3つ
 def bottom():
@@ -119,10 +119,10 @@ def bottom():
     );
     """, (z, z, z, z, z, z, z, z, z))
     
-    bottom_yougo = [row[0] for row in cur.fetchall()]
+    bottom_words = [row[0] for row in cur.fetchall()]
     cur.close()
     conn.close()
-    return bottom_yougo
+return bottom_words
     
 def len_yougo():
   filepath = "Bunseki.db"
@@ -151,8 +151,8 @@ def analyze():
 
         client = Groq(api_key=groq_api_key)
 
-        top_words = ", ".join(top()) if top_words else "なし"
-        bottom_words = ", ".join(bottom()) if bottom_words else "なし"
+        top_words = ", ".join(top())
+        bottom_words = ", ".join(bottom())
         len_yougo = len_yougo()
 
         system_prompt = '''
