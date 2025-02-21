@@ -151,9 +151,9 @@ def analyze():
 
         client = Groq(api_key=groq_api_key)
 
-        top_words = top()
-        bottom_words = bottom()
-        len_yougo = str(len_yougo())
+        top_words = top() or [] 
+        bottom_words = bottom() or []
+        total_yougo = len_yougo() or "不明"
 
         top_words = ", ".join(top_words) if top_words else "なし"
         bottom_words = ", ".join(bottom_words) if bottom_words else "なし"
