@@ -12,34 +12,27 @@ DB_PATH = "Bunseki.db"  # データベースを統一
 
 # SQLite データベースを作成（もし存在しない場合）
 def init_db():
-    # 初回起動時のみ呼び出し
-    if not os.path.exists(DB_PATH):
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row
-        cur = conn.cursor()
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS bunseki (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            yougo TEXT NOT NULL,
+            seigo INTEGER NOT NULL
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS tokai (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            yougo TEXT NOT NULL,
+            mondai TEXT NOT NULL
+        )
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("✅ `Bunseki.db` が初期化されました！")
 
-        # `bunseki` テーブル作成
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS bunseki (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                yougo TEXT NOT NULL,
-                seigo INTEGER NOT NULL
-            )
-        """)
-
-        # `tokai` テーブル作成（必要なら）
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS tokai (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                yougo TEXT NOT NULL,
-                mondai TEXT NOT NULL
-            )
-        """)
-
-        conn.commit()
-        cur.close()
-        conn.close()
-        print("✅ `Bunseki.db` を作成しました！")
 
 # SQLite データベースに接続
 def connect_db():
