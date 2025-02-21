@@ -151,9 +151,12 @@ def analyze():
 
         client = Groq(api_key=groq_api_key)
 
-        top_words = ", ".join(top())
-        bottom_words = ", ".join(bottom())
-        len_yougo = ", ".join(len_yougo())
+        top_words = top()
+        bottom_words = bottom()
+        len_yougo = str(len_yougo())
+
+        top_words = ", ".join(top_words) if top_words else "なし"
+        bottom_words = ", ".join(bottom_words) if bottom_words else "なし"
 
         system_prompt = '''
                           あなたは必ず日本語で回答する全商情報処理検定の学習アドバイザーです。  必ず日本語で丁寧に回答してください。必ず日本語で装飾はつけないでください。
