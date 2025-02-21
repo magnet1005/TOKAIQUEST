@@ -233,7 +233,7 @@ def main():
       api_key=groq_api_key
   )
 
-  response = output(client, model, str(top()), str(bottom()),str(len_yougo()))
+  response = output(client, model, ", ".join(top), ", ".join(bottom),", ".join(len_yougo))
         
 return jsonify({"response": chat_completion.choices[0].message.content})
 
