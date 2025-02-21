@@ -8,6 +8,13 @@ app = Flask(__name__)
 CORS(app)
 DB_PATH = "Bunseki.db"  # データベースのパス
 
+@app.after_request
+def after_request(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
+    
 # SQLite データベースを初期化
 def init_db():
     conn = sqlite3.connect(DB_PATH)
