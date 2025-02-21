@@ -134,8 +134,8 @@ def analyze():
 
         client = Groq(api_key=groq_api_key)
 
-        top_words = ", ".join(top())
-        bottom_words = ", ".join(bottom())
+        top_words = ", ".join(top) if top_words else "なし"
+        bottom_words = ", ".join(bottom) if bottom_words else "なし"
 
         prompt = f"""
         正答率上位: {top_words}
