@@ -153,7 +153,7 @@ def analyze():
 
         top_words = ", ".join(top())
         bottom_words = ", ".join(bottom())
-        len_yougo = len_yougo()
+        len_yougo = ", ".join(len_yougo())
 
         system_prompt = '''
                           あなたは必ず日本語で回答する全商情報処理検定の学習アドバイザーです。  必ず日本語で丁寧に回答してください。必ず日本語で装飾はつけないでください。
