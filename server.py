@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5500"}})
 DB_PATH = "Bunseki.db"  # データベースのパス
 
 # SQLite データベースを初期化
