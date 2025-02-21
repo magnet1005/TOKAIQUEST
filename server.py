@@ -162,7 +162,14 @@ def analyze():
                             """
 
         chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
+            messages = [
+          {
+              "role": "system",
+              "content":  system_prompt
+          },
+          {
+              "role": "user",
+              "content": prompt}],
             model=model,
             temperature=0.3,
         )
