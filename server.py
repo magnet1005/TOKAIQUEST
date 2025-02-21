@@ -123,6 +123,23 @@ def bottom():
     cur.close()
     conn.close()
     return bottom_yougo
+    
+def len_yougo():
+  filepath = "Bunseki.db"
+  conn = sqlite3.connect(filepath)
+  cur = conn.cursor()
+
+  z = 1.96
+  cur.execute("""
+  SELECT COUNT(DISTINCT yougo) FROM bunseki;
+  """)
+
+  len_yougo = cur.fetchall()
+
+  cur.close()
+  conn.close()
+
+return len_yougo
 
 @app.route("/analyze", methods=["GET"])
 def analyze():
@@ -134,11 +151,12 @@ def analyze():
 
         client = Groq(api_key=groq_api_key)
 
-        top_words = ", ".join(top) if top_words else "なし"
-        bottom_words = ", ".join(bottom) if bottom_words else "なし"
+        top_words = ", ".join(top()) if top_words else "なし"
+        bottom_words = ", ".join(bottom()) if bottom_words else "なし"
+        len_yougo = len_yougo()
 
         system_prompt = '''
-                          あなたは全商情報処理検定の学習アドバイザーです。  必ず日本語で丁寧に回答してください。必ず日本語で装飾はつけないでください。
+                          あなたは必ず日本語で回答する全商情報処理検定の学習アドバイザーです。  必ず日本語で丁寧に回答してください。必ず日本語で装飾はつけないでください。
                           '''
         prompt = f"""以下の結果をもとに、個々に寄り添ったアドバイスを必ず日本語で【テンプレート】に沿って日本語にて行ってください。
 
