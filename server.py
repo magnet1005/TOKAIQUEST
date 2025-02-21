@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from groq import Groq
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify , make_response
 from flask_cors import CORS
 
 app = Flask(__name__)
