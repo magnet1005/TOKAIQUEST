@@ -235,7 +235,7 @@ def main():
 
   response = output(client, model, ", ".join(top), ", ".join(bottom),", ".join(len_yougo))
         
-return jsonify({"response": chat_completion.choices[0].message.content})
+  return jsonify({"response": chat_completion.choices[0].message.content})
 
 except Exception as e:
 return jsonify({"error": str(e)}), 500
