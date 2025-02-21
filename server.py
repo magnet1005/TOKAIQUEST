@@ -234,8 +234,9 @@ def main():
   )
     top_words = ", ".join(top())
     bottom_words = ", ".join(bottom())
+    len_yougo = ", ".join(len_yougo())
 
-  response = output(client, model, top_words, bottom_words, str(len_yougo))
+  response = output(client, model, top_words, bottom_words, len_yougo)
         
   return jsonify({"response": chat_completion.choices[0].message.content})
 
