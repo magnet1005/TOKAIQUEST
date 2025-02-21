@@ -123,23 +123,21 @@ def bottom():
     cur.close()
     conn.close()
     return bottom_words
-    
+
+# 用語数を取得
 def len_yougo():
-  filepath = "Bunseki.db"
-  conn = sqlite3.connect(filepath)
-  cur = conn.cursor()
+    filepath = "Bunseki.db"
+    conn = sqlite3.connect(filepath)
+    cur = conn.cursor()
 
-  z = 1.96
-  cur.execute("""
-  SELECT COUNT(DISTINCT yougo) FROM bunseki;
-  """)
-
-  len_yougo = cur.fetchall()
-
-  cur.close()
-  conn.close()
-
-    return len_yougo
+    cur.execute("""
+    SELECT COUNT(DISTINCT yougo) FROM bunseki;
+    """)
+    
+    result = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return result
 
 @app.route("/analyze", methods=["GET"])
 def analyze():
@@ -151,53 +149,35 @@ def analyze():
 
         client = Groq(api_key=groq_api_key)
 
-        top_words = top() or [] 
-        bottom_words = bottom() or []
+        top_words = ", ".join(top()) or "なし"
+        bottom_words = ", ".join(bottom()) or "なし"
         total_yougo = len_yougo() or "不明"
 
-        top_words = ", ".join(top_words) if top_words else "なし"
-        bottom_words = ", ".join(bottom_words) if bottom_words else "なし"
+        system_prompt = """ あなたは必ず日本語で回答する全商情報処理検定の学習アドバイザーです。 必ず日本語で丁寧に回答してください。必ず日本語で装飾はつけないでください。 """
 
-        system_prompt = '''
-                          あなたは必ず日本語で回答する全商情報処理検定の学習アドバイザーです。  必ず日本語で丁寧に回答してください。必ず日本語で装飾はつけないでください。
-                          '''
-        prompt = """以下の結果をもとに、個々に寄り添ったアドバイスを必ず日本語で【テンプレート】に沿って日本語にて行ってください。
+        prompt = f"""以下の結果をもとに、個々に寄り添ったアドバイスを必ず日本語で【テンプレート】に沿って日本語にて行ってください。
 
-                            - 必ず日本語で正答率上位のものは、「できている点」を具体的に褒め必ず日本語で、さらに伸ばせる勉強法を必ず日本語で提案してください。また、結果からどの分野が得意であるかも必ず日本語で教えてください。
-                            - 必ず日本語で正答率下位のものは、「努力している点」に触れたうえで必ず日本語で、どのように改善すればよいかを前向きに必ず日本語で提案してください。  また、結果からどの分野が苦手であるかも必ず日本語で教えてください。
-                            - 必ず日本語で学習者の向上心を高めるような励ましの言葉を必ず日本語で入れてください。
-                            - 必ず日本語で装飾をつけずに簡潔に必ず日本語で出力してください。
+        正答率上位3位：{top_words}
+        正答率下位3位：{bottom_words}
+        回答用語数：{total_yougo}
 
-                            正答率上位3位：""" + top_words + """
-                            正答率下位3位：""" + bottom_words + """
-                            回答用語数：""" + len_yougo + """
+        【テンプレート】
+        ---正答率上位3位---
+        [word,word,word]
 
-                            【テンプレート】
-                            ---正答率上位3位---
-                            [word,word,word]
+        褒めるような文章
 
-                            褒めるような文章
+        ---正答率下位3位---
+        [word,word,word]
 
-                            ---正答率下位3位---
-                            [word,word,word]
-
-                            正答率を改善するための勉強法
-
-                            """
+        正答率を改善するための勉強法"""
 
         chat_completion = client.chat.completions.create(
-            messages = [
-          {
-              "role": "system",
-              "content":  system_prompt
-          },
-          {
-              "role": "user",
-              "content": prompt}],
+            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": prompt}],
             model=model,
             temperature=0.3,
         )
-
+        
         response = chat_completion.choices[0].message.content
         return jsonify({"response": response})
     except Exception as e:
